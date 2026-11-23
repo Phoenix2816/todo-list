@@ -41,15 +41,28 @@
     </svg>
   `;
 
-  let todos = JSON.parse(localStorage.getItem("todos")) || [];
-  let theme = localStorage.getItem("theme") || "light";
+  const status = document.getElementById('taskStatus');
+  const counter = document.getElementById('taskCount');
+  const empty = document.getElementById('emptyState');
+  let todos = [];
+  let theme = 'light';
+  try {
+    const stored = JSON.parse(localStorage.getItem('todos') || '[]');
+    if (!Array.isArray(stored)) throw new Error('Invalid task list');
+    todos = stored.filter(item => item && typeof item.text === 'string' && item.text.trim()).map(item => ({ text: item.text.trim().slice(0, 300), completed: item.completed === true }));
+    theme = localStorage.getItem('theme') === 'dark' ? 'dark' : 'light';
+  } catch { status.textContent = 'Saved tasks could not be read. You can still use this list.'; }
+
 
   function saveTodos() {
-    localStorage.setItem("todos", JSON.stringify(todos));
+    try { localStorage.setItem('todos', JSON.stringify(todos)); }
+    catch { status.textContent = 'Changes are available in this tab, but could not be saved on this device.'; }
   }
 
   function renderTodos() {
     list.innerHTML = "";
+    empty.hidden = todos.length > 0;
+    counter.textContent = `${todos.filter(task => !task.completed).length} remaining · ${todos.length} total`;
 
     todos.forEach((todo, index) => {
       const li = document.createElement("li");
@@ -67,31 +80,41 @@
       const toggleBtn = document.createElement("button");
       toggleBtn.className = "icon-btn";
       toggleBtn.innerHTML = checkIcon(todo.completed);
+      toggleBtn.setAttribute('aria-label', `Complete task: ${todo.text}`);
+      toggleBtn.setAttribute('aria-pressed', String(todo.completed));
       toggleBtn.onclick = () => {
         todo.completed = !todo.completed;
         saveTodos();
         renderTodos();
+        list.children[Math.min(index, todos.length - 1)]?.querySelector("button")?.focus();
+        if (!todos.length) input.focus();
       };
 
       const editBtn = document.createElement("button");
       editBtn.className = "icon-btn";
       editBtn.innerHTML = editIcon;
+      editBtn.setAttribute('aria-label', `Edit task: ${todo.text}`);
       editBtn.onclick = () => {
         const newText = prompt("Update task:", todo.text);
         if (newText && newText.trim()) {
+          if (newText.trim().length > 300) { status.textContent = "Use 300 characters or fewer."; return; }
           todo.text = newText.trim();
           saveTodos();
           renderTodos();
+          list.children[index]?.querySelectorAll("button")[1]?.focus();
         }
       };
 
       const deleteBtn = document.createElement("button");
       deleteBtn.className = "icon-btn delete";
       deleteBtn.innerHTML = deleteIcon;
+      deleteBtn.setAttribute('aria-label', `Delete task: ${todo.text}`);
       deleteBtn.onclick = () => {
         todos.splice(index, 1);
         saveTodos();
         renderTodos();
+        list.children[Math.min(index, todos.length - 1)]?.querySelector("button")?.focus();
+        if (!todos.length) input.focus();
       };
 
       actions.append(toggleBtn, editBtn, deleteBtn);
@@ -104,7 +127,8 @@
   function applyTheme() {
     document.body.classList.toggle("dark", theme === "dark");
     themeToggle.innerHTML = theme === "dark" ? sunIcon : moonIcon;
-    localStorage.setItem("theme", theme);
+    themeToggle.setAttribute('aria-label', theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
+    try { localStorage.setItem('theme', theme); } catch { /* Theme works in this tab. */ }
   }
 
   themeToggle.onclick = () => {
@@ -114,10 +138,14 @@
 
   form.onsubmit = e => {
     e.preventDefault();
-    todos.push({ text: input.value.trim(), completed: false });
+    const text = input.value.trim();
+    if (!text || text.length > 300) { status.textContent = 'Enter a task between 1 and 300 characters.'; input.focus(); return; }
+    status.textContent = '';
+    todos.push({ text, completed: false });
     input.value = "";
     saveTodos();
     renderTodos();
+    input.focus();
   };
 
   applyTheme();

@@ -116,3 +116,11 @@
     display: flex;
     gap: 6px;
   }
+button:focus-visible, input:focus-visible { outline: 3px solid #6a8eff; outline-offset: 3px; }
+.row > span { overflow-wrap: anywhere; min-width: 0; flex: 1; }
+.actions { flex-shrink: 0; }
+#taskStatus { color: #a54819; font-size: .9rem; }
+body.dark #taskStatus { color: #ffc39d; }
+#taskCount, #emptyState { opacity: .8; font-size: .9rem; }
+label { display: block; margin-bottom: .5rem; }
+@media (max-width: 420px) { .row { flex-wrap: wrap; gap: .75rem; } .actions { margin-left: auto; } }

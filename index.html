@@ -8,19 +8,23 @@
 </head>
 <body>
     
-<div class="app">
+<main class="app">
   <header>
     <h1>To-Do List</h1>
-    <button id="themeToggle"></button>
+    <button id="themeToggle" type="button" aria-label="Switch theme"></button>
   </header>
 
+  <label for="todoInput">What would you like to get done?</label>
   <form id="todoForm">
-    <input id="todoInput" type="text" placeholder="New task..." required>
+    <input id="todoInput" type="text" placeholder="New task..." maxlength="300" required aria-describedby="taskStatus">
     <button type="submit">Add</button>
   </form>
 
+  <p id="taskStatus" role="status"></p>
+  <p id="taskCount" aria-live="polite"></p>
+  <p id="emptyState">A clear list. Add your first task above.</p>
   <ul id="todoList"></ul>
-</div>
+</main>
 
     
     <script src="script.js"></script>
