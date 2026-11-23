@@ -95,14 +95,37 @@
       editBtn.innerHTML = editIcon;
       editBtn.setAttribute('aria-label', `Edit task: ${todo.text}`);
       editBtn.onclick = () => {
-        const newText = prompt("Update task:", todo.text);
-        if (newText && newText.trim()) {
-          if (newText.trim().length > 300) { status.textContent = "Use 300 characters or fewer."; return; }
-          todo.text = newText.trim();
-          saveTodos();
+        const editor = document.createElement('form');
+        editor.className = 'task-editor';
+        const field = document.createElement('input');
+        field.value = todo.text;
+        field.maxLength = 300;
+        field.required = true;
+        field.setAttribute('aria-label', 'Edit task text');
+        const save = document.createElement('button');
+        save.type = 'submit';
+        save.textContent = 'Save';
+        const cancel = document.createElement('button');
+        cancel.type = 'button';
+        cancel.textContent = 'Cancel';
+        const finish = () => {
           renderTodos();
-          list.children[index]?.querySelectorAll("button")[1]?.focus();
-        }
+          list.children[index]?.querySelectorAll('button')[1]?.focus();
+        };
+        cancel.onclick = finish;
+        field.onkeydown = event => { if (event.key === 'Escape') { event.preventDefault(); finish(); } };
+        editor.onsubmit = event => {
+          event.preventDefault();
+          if (!field.value.trim()) { status.textContent = 'Enter a task before saving.'; field.focus(); return; }
+          todo.text = field.value.trim();
+          status.textContent = '';
+          saveTodos();
+          finish();
+        };
+        editor.append(field, save, cancel);
+        li.replaceChildren(editor);
+        field.focus();
+        field.select();
       };
 
       const deleteBtn = document.createElement("button");

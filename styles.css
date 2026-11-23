@@ -21,7 +21,9 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
+    box-sizing: border-box;
+    padding: 24px 16px;
   }
 
   .app {
@@ -85,6 +87,8 @@
     padding: 8px;
     border-radius: 6px;
     border: 1px solid #ccc;
+    min-width: 0;
+    font: inherit;
   }
 
   ul {
@@ -123,4 +127,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid #6a8eff; outline-
 body.dark #taskStatus { color: #ffc39d; }
 #taskCount, #emptyState { opacity: .8; font-size: .9rem; }
 label { display: block; margin-bottom: .5rem; }
+.task-editor { flex-wrap: wrap; margin: 0; }
+.task-editor input { flex-basis: 100%; }
+.task-editor button { min-height: 36px; padding-inline: 14px; }
 @media (max-width: 420px) { .row { flex-wrap: wrap; gap: .75rem; } .actions { margin-left: auto; } }
